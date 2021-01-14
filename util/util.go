@@ -4,15 +4,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 	"os"
+	"os/exec"
 	"strings"
 	"text/template"
 	"time"
 
+	"wireguard-ui/model"
+
 	rice "github.com/GeertJohan/go.rice"
 	externalip "github.com/glendc/go-external-ip"
-	"github.com/ngoduykhanh/wireguard-ui/model"
 	"github.com/sdomino/scribble"
 )
 
@@ -347,6 +350,24 @@ func WriteWireGuardServerConfig(tmplBox *rice.Box, serverConfig model.Server, cl
 		return err
 	}
 	f.Close()
+
+	return nil
+}
+
+// RestartWireGuardNetInterface  down and up wg interface
+func RestartWireGuardNetInterface(globalSettings model.GlobalSetting) error {
+	configpathslice := strings.Split(globalSettings.ConfigFilePath, "/")
+	netname := strings.Split(configpathslice[len(configpathslice)-1], ".")[0]
+	downcmd := exec.Command("wg-quick", "down", netname)
+	upcmd := exec.Command("wg-quick", "up", netname)
+	_, err := downcmd.CombinedOutput()
+	if err != nil {
+		log.Fatalf("failed to down wireguard net interface with %s\n", err)
+	}
+	_, err = upcmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

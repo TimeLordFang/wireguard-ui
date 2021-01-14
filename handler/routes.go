@@ -9,12 +9,13 @@ import (
 
 	rice "github.com/GeertJohan/go.rice"
 
+	"wireguard-ui/model"
+	"wireguard-ui/util"
+
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
-	"github.com/ngoduykhanh/wireguard-ui/model"
-	"github.com/ngoduykhanh/wireguard-ui/util"
 	"github.com/rs/xid"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -570,6 +571,15 @@ func ApplyServerConfig(tmplBox *rice.Box) echo.HandlerFunc {
 			})
 		}
 
-		return c.JSON(http.StatusOK, jsonHTTPResponse{true, "Applied server config successfully"})
+		// restart wireguard
+		err = util.RestartWireGuardNetInterface(settings)
+		if err != nil {
+			log.Error("Cannot restart wireguard net interface: ", err)
+			return c.JSON(http.StatusInternalServerError, jsonHTTPResponse{
+				false, fmt.Sprintf("Cannot restart wireguard net interface: %v", err),
+			})
+		}
+
+		return c.JSON(http.StatusOK, jsonHTTPResponse{true, "Applied server config and restart wireguard successfully"})
 	}
 }

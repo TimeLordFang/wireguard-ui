@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"time"
 
+	"wireguard-ui/handler"
+	"wireguard-ui/router"
+	"wireguard-ui/util"
+
 	rice "github.com/GeertJohan/go.rice"
 	"github.com/labstack/echo/v4"
-	"github.com/ngoduykhanh/wireguard-ui/handler"
-	"github.com/ngoduykhanh/wireguard-ui/router"
-	"github.com/ngoduykhanh/wireguard-ui/util"
 )
 
 // command-line banner information
